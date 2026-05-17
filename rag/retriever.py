@@ -12,7 +12,7 @@ index = faiss.IndexFlatL2(dimension)
 index.add(np.array(doc_embeddings))
 
 
-def retrieve_context(query, top_k=2):
+def retrieve_context(query, top_k=1):
     query_vector = model.encode([query])
     distances, indices = index.search(np.array(query_vector), top_k)
 

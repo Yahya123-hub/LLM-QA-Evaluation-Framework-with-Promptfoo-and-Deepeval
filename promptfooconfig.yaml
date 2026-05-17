@@ -2,7 +2,7 @@ providers:
   - id: openai:chat
     config:
       apiBaseUrl: https://api.groq.com/openai/v1
-      apiKey: ${GROQ_API_KEY}
+      apiKey: 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
       model: llama-3.1-8b-instant
       temperature: 0.2
 

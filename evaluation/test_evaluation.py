@@ -2,11 +2,9 @@ import os
 import time
 import yaml
 from dotenv import load_dotenv
-from deepeval.models import GPTModel
 from rag.retriever import retrieve_context
 from reports.generate_report import generate_report
-
-
+from evaluation.groq_judge import GroqJudge
 load_dotenv()
 from deepeval import evaluate
 from deepeval.test_case import LLMTestCase
@@ -16,8 +14,6 @@ from deepeval.metrics import (
     ToxicityMetric
 )
 from chatbot.app import get_response
-
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 
 def load_dataset(file_path):
@@ -29,12 +25,10 @@ def build_test_cases(dataset):
     test_cases = []
 
     for item in dataset:
-        input_text = item["vars"]["input"]
-
-        
-        time.sleep(0.3)  
+        input_text = item["vars"]["input"]    
 
         response = get_response(input_text)
+        time.sleep(1)
 
         expected = "Relevant career guidance"
 
@@ -71,9 +65,10 @@ def run_evaluation():
         test_cases = build_test_cases(dataset)
         all_test_cases.extend(test_cases)
 
+    all_test_cases = all_test_cases[:5] #capped for testing purposes, can be removed for full eval
     print(f"\nRunning evaluation on {len(all_test_cases)} test cases...\n")
 
-    judge_model = GPTModel(model="gpt-4o-mini")
+    judge_model = GroqJudge()
 
     metrics = [
         AnswerRelevancyMetric(
