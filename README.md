@@ -68,6 +68,9 @@ ai-llm-testing-suite/
 │
 ├── evaluation/
 │   ├── test_evaluation.py  # DeepEval runner
+    |-combined_eval.py # Hybrid: Promptfoo + DeepEval
+    |-judge_prompt.py # Evaluation rubric
+    |-llm_judge.py # Custom LLM judge
 │
 ├── reports/
 │   └── generate_report.py
