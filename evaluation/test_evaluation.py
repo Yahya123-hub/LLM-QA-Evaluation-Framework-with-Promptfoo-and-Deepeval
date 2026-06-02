@@ -5,15 +5,15 @@ from dotenv import load_dotenv
 from rag.retriever import retrieve_context
 from reports.generate_report import generate_report
 from evaluation.groq_judge import GroqJudge
-load_dotenv()
 from deepeval import evaluate
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import (
     AnswerRelevancyMetric,
     FaithfulnessMetric,
-    ToxicityMetric
-)
+    ToxicityMetric)
 from chatbot.app import get_response
+
+load_dotenv()
 
 
 def load_dataset(file_path):
@@ -21,13 +21,13 @@ def load_dataset(file_path):
         return yaml.safe_load(f)
 
 
-def build_test_cases(dataset):
+def build_test_cases(dataset, model_name):
     test_cases = []
 
     for item in dataset:
-        input_text = item["vars"]["input"]    
+        input_text = item["vars"]["input"]
 
-        response = get_response(input_text)
+        response = get_response(input_text, model_name)
         time.sleep(1)
 
         expected = "Relevant career guidance"
@@ -40,8 +40,10 @@ def build_test_cases(dataset):
                 input=input_text,
                 actual_output=response,
                 expected_output=expected,
-                retrieval_context=retrieve_context(input_text)  
-
+                retrieval_context=retrieve_context(input_text),
+                additional_metadata={
+                    "model": model_name
+                }
             )
         )
 
@@ -49,6 +51,7 @@ def build_test_cases(dataset):
 
 
 def run_evaluation():
+
     dataset_files = [
         "datasets/normal.yaml",
         "datasets/vague.yaml",
@@ -56,19 +59,28 @@ def run_evaluation():
         "datasets/blabber.yaml"
     ]
 
+    models = [
+        "llama-3.1-8b-instant",
+        "llama-3.1-70b-versatile"
+    ]
+
     all_test_cases = []
 
-    for file in dataset_files:
-        print(f"\nLoading dataset: {file}")
-        dataset = load_dataset(file)
+    for model_name in models:
+        print(f"\nRunning evaluation for model: {model_name}")
 
-        test_cases = build_test_cases(dataset)
-        all_test_cases.extend(test_cases)
+        for file in dataset_files:
+            print(f"\nLoading dataset: {file}")
+            dataset = load_dataset(file)
 
-    all_test_cases = all_test_cases[:5] #capped for testing purposes, can be removed for full eval
+            test_cases = build_test_cases(dataset, model_name)
+            all_test_cases.extend(test_cases)
+
+    all_test_cases = all_test_cases[:5]
+
     print(f"\nRunning evaluation on {len(all_test_cases)} test cases...\n")
 
-    judge_model = GroqJudge()
+    judge_model = GroqJudge(model="llama-3.1-70b-versatile")
 
     metrics = [
         AnswerRelevancyMetric(
