@@ -60,8 +60,8 @@ def run_evaluation():
     ]
 
     models = [
-        "llama-3.1-8b-instant",
-        "llama-3.1-70b-versatile"
+        "llama-3.1-8b-instant",       
+        "llama-3.3-70b-versatile"  
     ]
 
     all_test_cases = []
@@ -80,7 +80,7 @@ def run_evaluation():
 
     print(f"\nRunning evaluation on {len(all_test_cases)} test cases...\n")
 
-    judge_model = GroqJudge(model="llama-3.1-70b-versatile")
+    judge_model = GroqJudge(model="llama-3.3-70b-versatile")
 
     metrics = [
         AnswerRelevancyMetric(

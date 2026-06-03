@@ -4,9 +4,11 @@ import os
 
 from rag.retriever import retrieve_context
 
-load_dotenv()
+load_dotenv(override=True)
+print("KEY:", os.getenv("GROQ_API_KEY"))  # remove after debugging
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY")) 
+#add key here but make sure to remove before comit
 
 
 def get_response(user_input, model_name="llama-3.1-8b-instant"):

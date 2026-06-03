@@ -4,7 +4,7 @@ import os
 
 
 class GroqJudge(DeepEvalBaseLLM):
-    def __init__(self, model="llama-3.1-70b-versatile"):
+    def __init__(self, model="llama-3.3-70b-versatile"):
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         self.model = model
 
