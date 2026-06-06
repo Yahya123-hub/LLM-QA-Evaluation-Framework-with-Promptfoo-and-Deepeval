@@ -17,7 +17,12 @@ def generate_report(results):
 
     print("\n🔍 MODEL METADATA CHECK (first 5 cases)\n")
 
-    for i, r in enumerate(results[:5]):
+    if isinstance(results, list):
+        sample = results[:5]
+    else:
+        sample = []
+
+    for i, r in enumerate(sample):
         try:
             model = (
                 r.test_case.additional_metadata.get("model", None)

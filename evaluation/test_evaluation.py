@@ -2,16 +2,13 @@ import os
 import time
 import yaml
 from dotenv import load_dotenv
+
 from rag.retriever import retrieve_context
 from reports.generate_report import generate_report
-from evaluation.groq_judge import GroqJudge
-from deepeval import evaluate
-from deepeval.test_case import LLMTestCase
-from deepeval.metrics import (
-    AnswerRelevancyMetric,
-    FaithfulnessMetric,
-    ToxicityMetric)
 from chatbot.app import get_response
+
+from deepeval.test_case import LLMTestCase
+from evaluation.deepeval_runner import run_deepeval
 
 load_dotenv()
 
@@ -28,7 +25,7 @@ def build_test_cases(dataset, model_name):
         input_text = item["vars"]["input"]
 
         response = get_response(input_text, model_name)
-        time.sleep(1)
+        time.sleep(2)  
 
         expected = "Relevant career guidance"
 
@@ -60,8 +57,8 @@ def run_evaluation():
     ]
 
     models = [
-        "llama-3.1-8b-instant",       
-        "llama-3.3-70b-versatile"  
+        "llama-3.1-8b-instant",
+        "llama-3.3-70b-versatile"
     ]
 
     all_test_cases = []
@@ -76,33 +73,14 @@ def run_evaluation():
             test_cases = build_test_cases(dataset, model_name)
             all_test_cases.extend(test_cases)
 
+   
     all_test_cases = all_test_cases[:5]
 
-    print(f"\nRunning evaluation on {len(all_test_cases)} test cases...\n")
+    print(f"\nRunning DeepEval on {len(all_test_cases)} test cases...\n")
 
-    judge_model = GroqJudge(model="llama-3.3-70b-versatile")
+    results = run_deepeval(all_test_cases)
 
-    metrics = [
-        AnswerRelevancyMetric(
-            threshold=0.7,
-            model=judge_model
-        ),
-        FaithfulnessMetric(
-            threshold=0.7,
-            model=judge_model
-        ),
-        ToxicityMetric(
-            threshold=0.0,
-            model=judge_model
-        )
-    ]
-
-    results = evaluate(
-        test_cases=all_test_cases,
-        metrics=metrics
-    )
-
-    generate_report(results)
+    generate_report(all_test_cases)
 
     print("\nRESULTS:")
     print(results)
